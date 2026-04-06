@@ -2,7 +2,7 @@ import { Query } from 'node-appwrite';
 import { databases } from '../shared/appwrite-server.js';
 
 const DATABASE_ID = process.env.APPWRITE_DATABASE_ID;
-const VIDEO_JOBS_TABLE_ID = process.env.APPWRITE_VIDEO_JOBS_TABLE_ID ?? 'video_jobs';
+const VIDEO_JOBS_COLLECTION_ID = process.env.APPWRITE_VIDEO_JOBS_TABLE_ID ?? 'video_jobs';
 const INTERVAL_MS = 60_000;
 let running = false;
 
@@ -23,7 +23,7 @@ async function checkJobs() {
   console.log('💓 Heartbeat tick: scanning for pending jobs...');
 
   try {
-    const response = await databases.listDocuments(DATABASE_ID, VIDEO_JOBS_TABLE_ID, [
+    const response = await databases.listDocuments(DATABASE_ID, VIDEO_JOBS_COLLECTION_ID, [
       Query.equal('status', 'pending'),
       Query.limit(1)
     ]);
@@ -36,7 +36,7 @@ async function checkJobs() {
     const job = response.documents[0];
     console.log(`📥 Pending job found: ${job.$id} (${job.topic ?? 'untitled'})`);
 
-    await databases.updateDocument(DATABASE_ID, VIDEO_JOBS_TABLE_ID, job.$id, {
+    await databases.updateDocument(DATABASE_ID, VIDEO_JOBS_COLLECTION_ID, job.$id, {
       status: 'researching'
     });
     console.log(`🔄 Job ${job.$id} status updated to researching.`);
