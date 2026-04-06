@@ -30,3 +30,12 @@ Modular, local-first multi-agent repository scaffold for autonomous YouTube pipe
 - Step 2 Skill Provider: `skills/skill-openrouter.ts`
 - Step 3 Asset Pipeline: `agents/producer.ts` + `skills/skill-remotion.ts`
 - Step 4 Real-time UI: dashboard Appwrite realtime listener
+
+
+## Appwrite Schema Design
+
+| Collection | Attributes | Purpose |
+|---|---|---|
+| **video_jobs** | topic, status, script_id, render_url | Tracks the lifecycle of a video. |
+| **agent_logs** | agent_name, message, timestamp | Provides the live feed for the frontend. |
+| **assets** | job_id, type (image/audio), url | Stores the files for Remotion. |
