@@ -1,8 +1,6 @@
 import { Query } from 'node-appwrite';
 import { config as loadEnv } from 'dotenv';
 import { databases } from '../shared/appwrite-server.js';
-import { askQwen } from '../skills/openrouter-gateway.js';
-import { renderVideo } from '../skills/skill-remotion.js';
 
 loadEnv();
 
@@ -42,8 +40,6 @@ async function checkJobs() {
     });
     console.log(`🔄 Job ${job.$id} status updated to researching.`);
 
-    void askQwen;
-    void renderVideo;
   } catch (error) {
     console.error('❌ Heartbeat cycle failed:', error);
   } finally {
