@@ -1,0 +1,46 @@
+import { Client, Databases, ID, Query } from "node-appwrite";
+import { videoJobSchema } from "../shared/schemas.js";
+const endpoint = process.env.APPWRITE_ENDPOINT;
+const projectId = process.env.APPWRITE_PROJECT_ID;
+const apiKey = process.env.APPWRITE_API_KEY;
+const databaseIdEnv = process.env.APPWRITE_DATABASE_ID;
+const jobsCollectionIdEnv = process.env.APPWRITE_JOBS_COLLECTION_ID;
+const logsCollectionIdEnv = process.env.APPWRITE_LOGS_COLLECTION_ID;
+if (!endpoint || !projectId || !apiKey || !databaseIdEnv || !jobsCollectionIdEnv || !logsCollectionIdEnv) {
+    throw new Error("Missing required Appwrite environment configuration.");
+}
+const databaseId = databaseIdEnv;
+const jobsCollectionId = jobsCollectionIdEnv;
+const logsCollectionId = logsCollectionIdEnv;
+const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
+const databases = new Databases(client);
+export async function getPendingJobs(limit = 10) {
+    const response = await databases.listDocuments(databaseId, jobsCollectionId, [
+        Query.equal("status", "Pending"),
+        Query.limit(limit)
+    ]);
+    return response.documents
+        .map((doc) => videoJobSchema.safeParse(doc))
+        .filter((result) => result.success)
+        .map((result) => result.data);
+}
+export async function updateJobStatus(jobId, status, patch = {}) {
+    await databases.updateDocument(databaseId, jobsCollectionId, jobId, {
+        status,
+        ...patch
+    });
+}
+export async function writeAgentLog(entry) {
+    console.log(`[${entry.timestampIso}] [${entry.agent}] [${entry.level}] ${entry.message}`, entry.metadata ?? {});
+    if (process.env.DISABLE_APPWRITE_LOG_WRITE === "1") {
+        return;
+    }
+    await databases.createDocument(databaseId, logsCollectionId, ID.unique(), {
+        jobId: entry.jobId,
+        agent: entry.agent,
+        level: entry.level,
+        message: entry.message,
+        metadata: JSON.stringify(entry.metadata ?? {}),
+        timestampIso: entry.timestampIso
+    });
+}
