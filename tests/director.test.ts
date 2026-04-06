@@ -7,6 +7,7 @@ process.env.APPWRITE_API_KEY = "test-api-key";
 process.env.APPWRITE_DATABASE_ID = "test-db";
 process.env.APPWRITE_JOBS_COLLECTION_ID = "jobs";
 process.env.APPWRITE_LOGS_COLLECTION_ID = "logs";
+process.env.DISABLE_APPWRITE_LOG_WRITE = "1";
 
 const { validateForExport } = await import("../agents/director.js");
 

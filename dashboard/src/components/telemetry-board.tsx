@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Databases, Models, Query } from "appwrite";
-import { appwriteClient, appwriteConfig } from "@/lib/appwrite";
+import { appwriteConfig, getAppwriteClient } from "@/lib/appwrite";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -23,14 +23,17 @@ type LogDoc = Models.Document & {
 export function TelemetryBoard(): React.ReactElement {
   const [jobs, setJobs] = useState<JobDoc[]>([]);
   const [logs, setLogs] = useState<LogDoc[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [runtimeError, setRuntimeError] = useState<string | null>(null);
 
-  const databases = useMemo(() => new Databases(appwriteClient), []);
+  const client = useMemo(() => getAppwriteClient(), []);
+  const databases = useMemo(() => (client ? new Databases(client) : null), [client]);
+  const { endpoint, projectId, databaseId, jobsCollectionId, logsCollectionId } = appwriteConfig;
+  const configError = !endpoint || !projectId || !databaseId || !jobsCollectionId || !logsCollectionId
+    ? "Missing NEXT_PUBLIC_APPWRITE_* configuration"
+    : null;
 
   useEffect(() => {
-    const { databaseId, jobsCollectionId, logsCollectionId } = appwriteConfig;
-    if (!databaseId || !jobsCollectionId || !logsCollectionId) {
-      setError("Missing NEXT_PUBLIC_APPWRITE_DATABASE_ID / collection IDs");
+    if (configError || !client || !databases || !databaseId || !jobsCollectionId || !logsCollectionId) {
       return;
     }
 
@@ -42,14 +45,15 @@ export function TelemetryBoard(): React.ReactElement {
         ]);
         setJobs(jobsResult.documents as JobDoc[]);
         setLogs(logsResult.documents as LogDoc[]);
+        setRuntimeError(null);
       } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+        setRuntimeError(e instanceof Error ? e.message : String(e));
       }
     };
 
     void load();
 
-    const unsubscribe = appwriteClient.subscribe(
+    const unsubscribe = client.subscribe(
       [
         `databases.${databaseId}.collections.${jobsCollectionId}.documents`,
         `databases.${databaseId}.collections.${logsCollectionId}.documents`
@@ -62,7 +66,9 @@ export function TelemetryBoard(): React.ReactElement {
     return () => {
       unsubscribe();
     };
-  }, [databases]);
+  }, [client, configError, databaseId, databases, jobsCollectionId, logsCollectionId]);
+
+  const displayError = configError ?? runtimeError;
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -71,7 +77,7 @@ export function TelemetryBoard(): React.ReactElement {
           <CardTitle>Job Status</CardTitle>
         </CardHeader>
         <CardContent>
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {displayError ? <p className="text-sm text-red-600">{displayError}</p> : null}
           <ul className="space-y-3">
             {jobs.map((job) => (
               <li key={job.$id} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">

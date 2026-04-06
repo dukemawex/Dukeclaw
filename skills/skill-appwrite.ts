@@ -5,13 +5,17 @@ import { videoJobSchema } from "../shared/schemas.js";
 const endpoint = process.env.APPWRITE_ENDPOINT;
 const projectId = process.env.APPWRITE_PROJECT_ID;
 const apiKey = process.env.APPWRITE_API_KEY;
-const databaseId = process.env.APPWRITE_DATABASE_ID;
-const jobsCollectionId = process.env.APPWRITE_JOBS_COLLECTION_ID;
-const logsCollectionId = process.env.APPWRITE_LOGS_COLLECTION_ID;
+const databaseIdEnv = process.env.APPWRITE_DATABASE_ID;
+const jobsCollectionIdEnv = process.env.APPWRITE_JOBS_COLLECTION_ID;
+const logsCollectionIdEnv = process.env.APPWRITE_LOGS_COLLECTION_ID;
 
-if (!endpoint || !projectId || !apiKey || !databaseId || !jobsCollectionId || !logsCollectionId) {
+if (!endpoint || !projectId || !apiKey || !databaseIdEnv || !jobsCollectionIdEnv || !logsCollectionIdEnv) {
   throw new Error("Missing required Appwrite environment configuration.");
 }
+
+const databaseId: string = databaseIdEnv;
+const jobsCollectionId: string = jobsCollectionIdEnv;
+const logsCollectionId: string = logsCollectionIdEnv;
 
 const client = new Client().setEndpoint(endpoint).setProject(projectId).setKey(apiKey);
 const databases = new Databases(client);
@@ -37,6 +41,10 @@ export async function updateJobStatus(jobId: string, status: JobStatus, patch: P
 
 export async function writeAgentLog(entry: AgentLogEntry): Promise<void> {
   console.log(`[${entry.timestampIso}] [${entry.agent}] [${entry.level}] ${entry.message}`, entry.metadata ?? {});
+
+  if (process.env.DISABLE_APPWRITE_LOG_WRITE === "1") {
+    return;
+  }
 
   await databases.createDocument(databaseId, logsCollectionId, ID.unique(), {
     jobId: entry.jobId,
