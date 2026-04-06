@@ -2,9 +2,12 @@
   "name": "dukeclaw",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/agents/heartbeat.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test --import tsx \"tests/**/*.test.ts\"",
+    "lint": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx agents/heartbeat.ts"
   },
   "repository": {
     "type": "git",
@@ -13,9 +16,19 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/dukemawex/Dukeclaw/issues"
   },
-  "homepage": "https://github.com/dukemawex/Dukeclaw#readme"
+  "homepage": "https://github.com/dukemawex/Dukeclaw#readme",
+  "dependencies": {
+    "node-appwrite": "^23.1.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  },
+  "private": "true"
 }
