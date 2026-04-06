@@ -4,10 +4,14 @@ import { databases } from '../shared/appwrite-server.js';
 
 loadEnv();
 
-const DATABASE_ID = process.env.APPWRITE_DATABASE_ID ?? '69d39296000d3bf0e6ae';
+const DATABASE_ID = process.env.APPWRITE_DATABASE_ID;
 const VIDEO_JOBS_TABLE_ID = process.env.APPWRITE_VIDEO_JOBS_TABLE_ID ?? 'video_jobs';
 const INTERVAL_MS = 60_000;
 let running = false;
+
+if (!DATABASE_ID) {
+  throw new Error('Missing APPWRITE_DATABASE_ID environment variable.');
+}
 
 console.log('🚀 DukeClaw worker online. Starting autonomous heartbeat.');
 console.log('🧠 Skills loaded: Appwrite + OpenRouter + Remotion.');
