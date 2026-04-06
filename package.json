@@ -26,6 +26,8 @@
   },
   "homepage": "https://github.com/dukemawex/Dukeclaw#readme",
   "dependencies": {
+    "@remotion/renderer": "^4.0.365",
+    "dotenv": "^16.6.1",
     "node-appwrite": "^23.1.0",
     "zod": "^4.3.6"
   },
