@@ -1,0 +1,33 @@
+{
+  "name": "DukeClaw",
+  "description": "Autonomous multi-agent multimedia engine worker deployment.",
+  "env": {
+    "OPENROUTER_API_KEY": {
+      "description": "OpenRouter API key",
+      "required": true
+    },
+    "APPWRITE_ENDPOINT": {
+      "description": "Appwrite endpoint URL",
+      "required": true
+    },
+    "APPWRITE_PROJECT_ID": {
+      "description": "Appwrite project ID",
+      "required": true
+    },
+    "APPWRITE_API_KEY": {
+      "description": "Appwrite API key",
+      "required": true
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    },
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-google-chrome"
+    },
+    {
+      "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+    }
+  ]
+}

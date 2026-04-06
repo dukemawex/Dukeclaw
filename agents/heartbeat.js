@@ -1,6 +1,8 @@
 import { Client, Databases, Query } from 'node-appwrite';
 import { ResearchAgent } from './researcher.js';
 
+console.log('🚀 DukeClaw Worker Dyno Initialized. Awaiting Appwrite jobs...');
+
 const client = new Client()
   .setEndpoint(process.env.APPWRITE_ENDPOINT)
   .setProject(process.env.APPWRITE_PROJECT_ID)
