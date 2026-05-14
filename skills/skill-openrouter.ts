@@ -16,9 +16,15 @@ const baseUrl = process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1
 const primaryModel = process.env.OPENROUTER_PRIMARY_MODEL ?? "qwen/qwen3.6-plus:free";
 const fallbackModels = (process.env.OPENROUTER_FALLBACK_MODELS ?? "").split(",").map((m) => m.trim()).filter(Boolean);
 const maxRetries = Number.parseInt(process.env.MAX_OPENROUTER_RETRIES ?? "3", 10);
+const allConfiguredModels = [primaryModel, ...fallbackModels];
+const nonFreeModels = allConfiguredModels.filter((model) => !model.endsWith(":free"));
 
 if (!apiKey) {
   throw new Error("Missing OPENROUTER_API_KEY environment variable.");
+}
+
+if (nonFreeModels.length > 0) {
+  throw new Error(`OpenRouter models must be free-tier (:free). Invalid model(s): ${nonFreeModels.join(", ")}`);
 }
 
 async function delay(ms: number): Promise<void> {
